@@ -1,6 +1,7 @@
 <launch>
-    <arg name="joy"  default="false"/>
-    <arg name="dev"  default="/dev/input/js0"/>
+    <arg name="joy" default="false"/>
+    <arg name="dev" default="/dev/input/js0"/>
+    <arg name="cmd_vel" default="cmd_vel"/>
 
     <node if="$(arg joy)" name="joy" pkg="joy" type="joy_node" required="true">
         <param name="autorepeat_rate" value="5" />
@@ -9,5 +10,6 @@
 
     <node name="champ_teleop" pkg="champ_teleop" type="champ_teleop.py" output="screen" required="true">
         <param name="joy" value="$(arg joy)" />
+        <remap from="cmd_vel" to="$(arg cmd_vel)"/>
     </node>
 </launch>

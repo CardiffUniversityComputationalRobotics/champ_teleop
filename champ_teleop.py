@@ -32,6 +32,8 @@ class Teleop:
         self.speed = rospy.get_param("~speed", 0.5)
         self.turn = rospy.get_param("~turn", 1.0)
 
+        self.zero_vel_sent = False
+
         self.msg = """
 Reading from the keyboard  and Publishing to Twist!
 ---------------------------
@@ -148,6 +150,9 @@ CTRL-C to quit
             while not rospy.is_shutdown():
                 key = self.getKey()
                 if key in self.velocityBindings.keys():
+
+                    self.zero_vel_sent = False
+
                     x = self.velocityBindings[key][0]
                     y = self.velocityBindings[key][1]
                     z = self.velocityBindings[key][2]
@@ -175,14 +180,17 @@ CTRL-C to quit
                     status = (status + 1) % 15
 
                 else:
-                    twist = Twist()
-                    twist.linear.x = 0
-                    twist.linear.y = 0
-                    twist.linear.z = 0
-                    twist.angular.x = 0
-                    twist.angular.y = 0
-                    twist.angular.z = 0
-                    self.velocity_publisher.publish(twist)
+                    if not self.zero_vel_sent:
+                        twist = Twist()
+                        twist.linear.x = 0
+                        twist.linear.y = 0
+                        twist.linear.z = 0
+                        twist.angular.x = 0
+                        twist.angular.y = 0
+                        twist.angular.z = 0
+                        self.velocity_publisher.publish(twist)
+                        self.zero_vel_sent = True
+
                     cmd_attempts = 0
                     if key == "\x03":
                         break
